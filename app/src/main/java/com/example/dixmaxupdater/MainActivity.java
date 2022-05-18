@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.jsoup.Jsoup;
@@ -16,6 +17,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView txtlog;
     Button btnupdate;
+    Updater updater;
+    ProgressBar progressbar;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,20 +29,22 @@ public class MainActivity extends AppCompatActivity {
 
         txtlog = findViewById(R.id.txtlog);
         btnupdate = findViewById(R.id.btnupdate);
+        progressbar = findViewById(R.id.downloadprogress);
 
-        //try {
-            //Document doc = Jsoup.connect("https://dixmax.cc/descargar").get();
+        updater = new Updater(txtlog, btnupdate, progressbar, this);
 
-            btnupdate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    txtlog.append("click");
-                }
-            });
 
-        //} catch (IOException e) {
-         //   e.printStackTrace();
-        //}
+
+        btnupdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Thread t = new Thread(updater);
+                t.start();
+            }
+        });
+
+
 
     }
 }
+

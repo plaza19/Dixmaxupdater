@@ -21,6 +21,7 @@
         tools:layout_editor_absoluteY="22dp" />
 
     <ProgressBar
+        android:id="@+id/downloadprogress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
