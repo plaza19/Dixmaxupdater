@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,12 +42,19 @@ public class AsyncDownloader extends AsyncTask<Void, Long, Boolean> {
         protected Boolean doInBackground(Void... params) {
             OkHttpClient httpClient = new OkHttpClient();
             Call call = httpClient.newCall(new Request.Builder().url(URL).get().build());
+            File file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS).toString(),"preuba_body2.apk");
             try {
                 Response response = call.execute();
                 if (response.code() == 200) {
                     InputStream inputStream = null;
                     try {
                         inputStream = response.body().byteStream();
+
+
+                        copyInputStreamToFile(inputStream, file);
+
+
                         byte[] buff = new byte[1024 * 4];
                         long downloaded = 0;
                         long target = response.body().contentLength();
@@ -68,30 +78,18 @@ public class AsyncDownloader extends AsyncTask<Void, Long, Boolean> {
                     } finally {
                         if (inputStream != null) {
 
+
+
                             try {
-                                File file = new File(android.os.Environment.getExternalStorageDirectory(), "cacheFileAppeal.apk");
-                                Log.d("hola", context.getExternalCacheDir().toString());
-                                try (OutputStream output = new FileOutputStream(file)) {
-                                    byte[] buffer = new byte[4 * 1024]; // or other buffer size
-                                    int read;
-
-                                    while ((read = inputStream.read(buffer)) != -1) {
-                                        output.write(buffer, 0, read);
-                                    }
-
-                                    output.flush();
-                                } catch (FileNotFoundException fileNotFoundException) {
-                                    fileNotFoundException.printStackTrace();
-                                } catch (IOException ioException) {
-                                    ioException.printStackTrace();
-                                }
-
 
                                 Intent promptInstall = new Intent(Intent.ACTION_VIEW)
-                                        .setDataAndType(FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file),
+                                        .setDataAndType(Uri.fromFile(file),
                                                 "application/vnd.android.package-archive");
                                 promptInstall.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 context.startActivity(promptInstall);
+
+
+
 
 
                                 inputStream.close();
@@ -126,5 +124,39 @@ public class AsyncDownloader extends AsyncTask<Void, Long, Boolean> {
         protected void onPostExecute(Boolean result) {
             //textViewStatus.setText(result ? "Downloaded" : "Failed");
         }
+
+    // Copy an InputStream to a File.
+//
+    private void copyInputStreamToFile(InputStream in, File file) {
+        OutputStream out = null;
+
+        try {
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            // Ensure that the InputStreams are closed even if there's an exception.
+            try {
+                if ( out != null ) {
+                    out.close();
+                }
+
+                // If you want to close the "in" InputStream yourself then remove this
+                // from here but ensure that you close it yourself eventually.
+                in.close();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

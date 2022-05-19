@@ -3,6 +3,7 @@ package com.example.dixmaxupdater;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -27,11 +28,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
         txtlog = findViewById(R.id.txtlog);
         btnupdate = findViewById(R.id.btnupdate);
         progressbar = findViewById(R.id.downloadprogress);
+        progressbar.setVisibility(View.INVISIBLE);
 
         updater = new Updater(txtlog, btnupdate, progressbar, this);
+
 
 
 
